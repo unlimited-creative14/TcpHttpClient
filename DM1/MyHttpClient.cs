@@ -341,64 +341,23 @@ namespace DM1
 					}
 					else
 					{
-						if (h.TransferEncoding.ToLower() == "chunked")
+						if (h.TransferEncoding?.ToLower() == "chunked")
 						{
 							string chunkedData = "";
 							int length;
+							ChunkedStream chunkedStream = new ChunkedStream(stream);
 							do
 							{
-								string chunk = "";
-								string hexLength = "";
-								string nb;
-								do
-								{
-									byte[] ch = new byte[1];
-									ch[0] = (byte)stream.ReadByte();
-									nb = Encoding.UTF8.GetString(ch);
-									chunk += nb;
-									if(char.IsLetterOrDigit(nb[0]))
-										hexLength += nb;
-								} while (char.IsLetterOrDigit(nb[0]));
-								stream.ReadByte(); // remove \n
-
-								length = int.Parse(hexLength, System.Globalization.NumberStyles.HexNumber);
-								if(length == 0)
-								{
-									break;
-								}
-								
-								//string nx = "";
-								//while (nx != crlf)
-								//{
-								//	byte[] ch = new byte[1];
-								//	ch[0] = (byte)stream.ReadByte();
-								//	nb = Encoding.UTF8.GetString(ch);
-
-								//	nx += nb;
-								//	if (nx.Length > 2)
-								//		nx = nx.Remove(0, 1);
-								//}
-
-								stream.Read(buffer, 0, length);
-								
-								chunk = Encoding.UTF8.GetString(buffer.AsSpan(0, length));
-								Console.WriteLine(chunk);
-
-								stream.ReadByte();
-								stream.ReadByte();
-
+								length = chunkedStream.Read(buffer, 0, 1024);
+								var chunk = Encoding.UTF8.GetString(buffer.AsSpan(0, length));
 								chunkedData += chunk;
-
 							} while (length != 0);
 
 							body = chunkedData; 
 							done = true;
-							
-							// byte [';' chunkext] el data el
 						}
 						else
 						{
-							
 							stream.Read(buffer, 0, h.ContentLength);
 
 							body = Encoding.UTF8.GetString(buffer, 0, h.ContentLength);

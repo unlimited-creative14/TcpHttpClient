@@ -12,7 +12,6 @@ namespace DM1
 {
 	class Program
 	{
-		static string GetChunks
 
 		static void Main(string[] args)
 		{
@@ -36,8 +35,8 @@ namespace DM1
 
 			var cli = new MyHttpClient(ethClient);
 			MyHttpClient.Response response;
-			cli.Connect("api.myip.com", 443);
-			if (cli.SendRequest(new MyHttpClient.Request("api.myip.com", "/") { 
+			cli.Connect("aws.random.cat", 443);
+			if (cli.SendRequest(new MyHttpClient.Request("aws.random.cat", "/meow") { 
 				Method = "GET",
 				Body = ""
 			}))
