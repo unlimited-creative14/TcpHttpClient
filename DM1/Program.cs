@@ -10,28 +10,41 @@ namespace DM1
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Hello World!");
+			if (args.Length < 1)
+			{
+				Console.WriteLine($"Use: DM1.exe <Url>");
+				return;
+			}
+			var url = new Uri(args[0]);
+
+			var fname = url.Segments[^1];
 
 			var interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			var activeInterfaces = interfaces.Where((x) => { return x.OperationalStatus == OperationalStatus.Up; });
+			var activeInterfaces = interfaces.Where((x) => { return x.OperationalStatus == OperationalStatus.Up;});
 
-			var wifi = activeInterfaces.Where(x => x.Name.ToUpper() == "WIFI").FirstOrDefault();
-			var eth = activeInterfaces.Where(x => x.Name.ToUpper() == "ETHERNET").FirstOrDefault();
+			int id;
+			string index;
+			do
+			{
+				for (int i = 0; i < activeInterfaces.ToArray().Length; i++)
+				{
+					var intf = activeInterfaces.ToArray()[i];
+					Console.WriteLine($"{i}.{intf.Name} IP:{intf.GetIPProperties().UnicastAddresses[0].Address}");
+				}
+				Console.Write("Select a connection to begin your download: ");
+				index = Console.ReadLine();
+			} while (!int.TryParse(index, out id));
 
-			var x1 = new Uri("https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-large-zip-file.zip");
-			var x2 = new Uri("https://api.ipify.org");
+			var choosenInt = activeInterfaces.ToArray()[id];
 
-			Request request = Request.DefaultRequest("GET", x1);
-			request.Headers.Add("Upgrade-Insecure-Requests", "1");
+			//https://speed.hetzner.de/100MB.bin
 
-			HttpClientBasedOnTCPClient client = new HttpClientBasedOnTCPClient(eth);
-
-			Console.WriteLine($"{request}");
-			File.Delete("./mmx.zip");
-			var fs = File.OpenWrite("./mmx.zip");
+			HttpClientBasedOnTCPClient client = new HttpClientBasedOnTCPClient(choosenInt);
+			File.Delete(fname);
+			var fs = File.OpenWrite(fname);
 
 			//var resp = client.Send(request);
-			var task = client.DownloadFileAsync(x1, fs);
+			var task = client.DownloadFileAsync(url, fs);
 			task.Wait();
 		}
 	}

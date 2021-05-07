@@ -142,11 +142,11 @@ namespace DM1
 				readAll += frag; 
 				if (response.ContentLength != -1)
 				{
-					Console.WriteLine($"{readAll}/{response.ContentLength}");
+					Console.WriteLine($"{readAll}/{response.ContentLength} -- {100.0*readAll/response.ContentLength:0.00}%");
 				}
 				else
 				{
-					Console.WriteLine($"{readAll}");
+					Console.WriteLine($"{readAll} bytes");
 				}
 			});
 			return readAll;
